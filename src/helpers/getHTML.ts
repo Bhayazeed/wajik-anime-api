@@ -19,13 +19,15 @@ export default async function getHTML(
     headers.Refferer = ref.startsWith("http") ? ref : new URL(ref, baseUrl).toString();
   }
 
-  const response = await fetch(url, { headers, redirect: "manual" });
+  const response = await fetch(url, { headers, redirect: "follow" });
 
   if (!response.ok) {
-    response.status > 399 ? errorinCuy(response.status) : errorinCuy(404);
+    if (response.status > 399) {
+      errorinCuy(response.status, `Mendapat status ${response.status} dari situs Otakudesu. Mungkin diblokir oleh Cloudflare.`);
+    } else {
+      errorinCuy(500, `Redirect error: ${response.status}`);
+    }
   }
-
-  const html = await response.text();
 
   if (!html.trim()) errorinCuy(404);
 
